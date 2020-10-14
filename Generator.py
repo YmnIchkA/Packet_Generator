@@ -2,5 +2,13 @@ import scapy
 
 
 class Generator:
+    import log
+
     def __init__(self):
-        print('Generator starts')
+        self.log.debug('Generator starts')
+
+    def generate_tcp(self):
+        pass
+
+    def generate_udp(self, data: dict):
+        pass
