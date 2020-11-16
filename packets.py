@@ -1,18 +1,35 @@
 from tkinter import StringVar, IntVar
 
+
 class IPHeader:
 
     def __init__(self) -> None:
-        self.version = None
+        self.version = 4
         self.ihl = None
         self.tos = None
         self.len = None
         self.id = None
         self.flags = None
+        self.frag = None
         self.ttl = None
         self.proto = None
+        self.chksum = None
+        self.src = None
+        self.dst = None
 
-        self.data = None
+    def packet(self):
+        return {'version': self.version,
+                'ihl': self.ihl,
+                'tos': self.tos,
+                'len': self.len,
+                'id': self.id,
+                'flags': self.flags,
+                'frag': self.frag,
+                'ttl': self.ttl,
+                'proto': self.proto,
+                'chksum': self.chksum,
+                'src': self.src,
+                'dst': self.dst}
 
 
 class UDPPacket:
@@ -28,15 +45,6 @@ class UDPPacket:
         self.data = StringVar()
 
     def packet(self):
-        return {'source port': self.src_port,
-                'destination port': self.dst_port,
-                'source IP': self.src_ip,
-                'destination IP': self.dst_ip,
-                'length': self.length,
-                'checksum': self.checksum,
-                'data': self.data}
-
-    def packet_named(self):
         return {'name': self.name,
                 'source port': self.src_port,
                 'destination port': self.dst_port,
@@ -45,3 +53,33 @@ class UDPPacket:
                 'length': self.length,
                 'checksum': self.checksum,
                 'data': self.data}
+
+
+class TCPPacket:
+
+    def __init__(self) -> None:
+        self.src_port = IntVar()
+        self.dst_port = IntVar()
+        self.length = IntVar()
+        self.checksum = IntVar()
+        self.src_ip = StringVar()
+        self.dst_ip = StringVar()
+        self.name = StringVar()
+        self.data = StringVar()
+        self.ack_number = IntVar()
+        self.sequence = IntVar()
+
+    def packet(self):
+        return {'name': self.name,
+                'source port': self.src_port,
+                'destination port': self.dst_port,
+                'source IP': self.src_ip,
+                'destination IP': self.dst_ip,
+                'ack_number': self.ack_number,
+                'length': self.length,
+                'checksum': self.checksum,
+                'data': self.data}
+
+class ICMPPacket:
+    pass
+

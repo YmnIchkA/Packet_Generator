@@ -1,4 +1,5 @@
 import tkinter
+from tkinter import ttk
 import packets
 from Generator import Generator
 
@@ -12,7 +13,8 @@ class Interface:
         self.generator = Generator()
         self.window = tkinter.Tk()
         self.window.title('Packet Generator')
-        self.udp_packets_list = list()
+        self.saved_packets_combobox = None
+        self.packets_list = list()
 
     @staticmethod
     def get_udp_dict(udp_packet):
@@ -23,7 +25,12 @@ class Interface:
         udp_packet.checksum = udp_packet.checksum.get()
         udp_packet.length = udp_packet.length.get()
         udp_packet.data = udp_packet.data.get()
-        return udp_packet
+
+    def fill_ip_header_in_window(self, window):
+        ip_h = tkinter.Label(window, text='IP header')
+        ip_h.grid(column=2, row=0, sticky='w')
+
+
 
     @staticmethod
     def get_tcp_packet(tcp_packet):
@@ -32,14 +39,19 @@ class Interface:
     def button_tcp(self):
         self.log.debug('Button TCP clicked')
 
-    def get_udp(self, window, udp_packet, is_save=False):
+    def get_udp(self, window, udp_packet):
         self.log.debug('get_udp method called')
-        udp_packet = self.get_udp_dict(udp_packet)
-        if is_save:
-            udp_packet.name = udp_packet.name.get()
-            self.udp_packets_list.append(udp_packet.packet_named())
-            self.log.debug(f' packet ==\n {udp_packet.packet_named()}')
+        self.get_udp_dict(udp_packet)
 
+        udp_packet.name = udp_packet.name.get()
+        for packet_name in self.packets_list:
+            if packet_name == udp_packet.name:
+                self.log.debug(f'Packet with name {packet_name} already exists')
+                window.destroy()
+                return
+
+        self.packets_list.append(udp_packet.name)
+        self.saved_packets_combobox['values'] = self.packets_list
         self.log.debug(f'packet == \n {udp_packet.packet()}')
         window.destroy()
 
@@ -49,6 +61,8 @@ class Interface:
         udp_window = tkinter.Toplevel(self.window)
         udp_window.title('UDP packet')
         udp_window.geometry('700x450+25+25')
+
+        self.fill_ip_header_in_window(udp_window)
         ip_h = tkinter.Label(udp_window, text='IP header')
         ip_h.grid(column=2, row=0, sticky='w')
         udp_h = tkinter.Label(udp_window, text='UDP header')
@@ -102,20 +116,26 @@ class Interface:
         entry_data = tkinter.Entry(udp_window, textvariable=udp_packet.data)
         entry_data.grid(column=0, row=6, padx=5, pady=5, sticky='w')
 
-        ok_button = tkinter.Button(udp_window, text='Ok', command=lambda: self.get_udp(udp_window, udp_packet))
-        ok_button.grid(column=4, row=10, padx=5)
-        save_button = tkinter.Button(udp_window, text='Save packet', command=lambda: self.get_udp(udp_window,
-                                                                                                  udp_packet,
-                                                                                                  True))
-        save_button.grid(column=5, row=10, padx=5)
+        send_button = tkinter.Button(udp_window, text='Send', command=lambda: self.get_udp(udp_window, udp_packet))
+        send_button.grid(column=4, row=10, padx=5)
         udp_window.mainloop()
+
+    def button_icmp(self):
+        self.log.debug('ICMP button clicked')
 
     def main(self):
         self.log.debug('Start main loop')
-        self.window.geometry('200x200+600+200')
-        btn_tcp = tkinter.Button(self.window, text="Create TCP", command=self.button_tcp)
-        btn_udp = tkinter.Button(self.window, text="Create UDP", command=self.button_udp)
+        self.window.geometry('300x150+600+200')
+        btn_tcp = tkinter.Button(self.window, text="Create TCP ", command=self.button_tcp)
+        btn_udp = tkinter.Button(self.window, text="Create UDP ", command=self.button_udp)
+        btn_icmp = tkinter.Button(self.window, text="Create ICMP", command=self.button_icmp)
+        self.saved_packets_combobox = ttk.Combobox(self.window, textvariable=tkinter.StringVar())
 
-        btn_tcp.grid(column=0, row=0, padx=5, pady=10)
-        btn_udp.grid(column=0, row=1)
+        self.saved_packets_combobox['values'] = ['No packets available']
+        self.saved_packets_combobox.grid(column=1, row=0)
+        self.saved_packets_combobox.current()
+
+        btn_tcp.grid(column=0, row=0, padx=5, pady=5)
+        btn_udp.grid(column=0, row=1, padx=5, pady=5)
+        btn_icmp.grid(column=0, row=2, padx=5, pady=5)
         self.window.mainloop()

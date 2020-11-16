@@ -7,8 +7,11 @@ class Generator:
     def __init__(self):
         self.log.debug('Generator starts')
 
-    def generate_tcp(self):
+    def send_tcp(self, ip_header: dict, tcp_header: dict):
         pass
 
-    def generate_udp(self, data: dict):
+    def send_udp(self, ip_header: dict, udp_header: dict):
+        pass
+
+    def send_icmp(self, ip_header: dict, icmp_header: dict):
         pass
