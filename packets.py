@@ -1,4 +1,4 @@
-from tkinter import StringVar, IntVar
+from tkinter import StringVar
 
 
 class IPHeader:
@@ -32,50 +32,60 @@ class IPHeader:
                 'dst': self.dst}
 
 
-class UDPPacket:
+class UDPHeader:
 
     def __init__(self) -> None:
-        self.src_port = StringVar()
-        self.dst_port = StringVar()
-        self.length = StringVar()
-        self.checksum = StringVar()
+        self.sport = StringVar()
+        self.dport = StringVar()
+        self.len = StringVar()
+        self.chksum = StringVar()
         self.name = StringVar()
         self.data = StringVar()
 
     def packet(self):
-        return {'name': self.name,
-                'source port': self.src_port,
-                'destination port': self.dst_port,
-                'length': self.length,
-                'checksum': self.checksum,
+        return {'source port': self.sport,
+                'destination port': self.dport,
+                'len': self.len,
+                'chksum': self.chksum,
                 'data': self.data}
 
 
-class TCPPacket:
+class TCPHeader:
 
     def __init__(self) -> None:
-        self.src_port = IntVar()
-        self.dst_port = IntVar()
-        self.length = IntVar()
-        self.checksum = IntVar()
+        self.sport = StringVar()
+        self.dport = StringVar()
+        self.len = StringVar()
+        self.chksum = StringVar()
         self.src_ip = StringVar()
         self.dst_ip = StringVar()
         self.name = StringVar()
         self.data = StringVar()
-        self.ack_number = IntVar()
-        self.sequence = IntVar()
+        self.ack_number = StringVar()
+        self.sequence = StringVar()
 
     def packet(self):
-        return {'name': self.name,
-                'source port': self.src_port,
-                'destination port': self.dst_port,
+        return {'source port': self.sport,
+                'destination port': self.dport,
                 'source IP': self.src_ip,
                 'destination IP': self.dst_ip,
                 'ack_number': self.ack_number,
-                'length': self.length,
-                'checksum': self.checksum,
+                'len': self.len,
+                'chksum': self.chksum,
                 'data': self.data}
 
 class ICMPPacket:
-    pass
+    def __init(self) -> None:
+        self.type = StringVar()
+        self.code = StringVar()
+        self.chksum = StringVar()
+        self.id = StringVar()
+        self.seq = StringVar()
+
+    def packet(self):
+        return{'type': self.type,
+               'code': self.code,
+               'chksum': self.chksum,
+               'id': self.id,
+               'seq': self.seq}
 

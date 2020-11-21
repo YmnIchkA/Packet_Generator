@@ -7,7 +7,7 @@ from Generator import Generator
 class Interface:
     import log
 
-    def __init__(self,):
+    def __init__(self, ):
         self.log.clear()
         self.log.debug('Start interface')
         self.generator = Generator()
@@ -15,16 +15,22 @@ class Interface:
         self.window.title('Packet Generator')
         self.saved_packets_combobox = None
         self.packets_list = list()
-        self.packets_list_names = list()
+        self.packets_list_names = list()  # used only for combobox list
 
+    '''
+    returns all values for udp header
+    '''
     @staticmethod
     def get_udp_dict(udp_packet):
-        udp_packet.src_port = udp_packet.src_port.get()
-        udp_packet.dst_port = udp_packet.dst_port.get()
-        udp_packet.checksum = udp_packet.checksum.get()
-        udp_packet.length = udp_packet.length.get()
+        udp_packet.sport = udp_packet.sport.get()
+        udp_packet.dport = udp_packet.dport.get()
+        udp_packet.chksum = udp_packet.chksum.get()
+        udp_packet.len = udp_packet.len.get()
         udp_packet.data = udp_packet.data.get()
 
+    '''
+    returns all values for ip header
+    '''
     @staticmethod
     def get_ip_dict(ip_header):
         ip_header.ihl = ip_header.ihl.get()
@@ -39,6 +45,11 @@ class Interface:
         ip_header.src = ip_header.src.get()
         ip_header.dst = ip_header.dst.get()
 
+    '''
+    this method creates labels and entry for all ip header parameters
+    by default called from 'get_udp', 'get_tcp', 'get_icmp'
+    fills in all that 3 window same information
+    '''
     @staticmethod
     def fill_ip_header_in_window(window, ip_packet):
         label = tkinter.Label
@@ -111,6 +122,9 @@ class Interface:
         entry_ip_dst = tkinter.Entry(window, textvariable=ip_packet.dst)
         entry_ip_dst.grid(column=1, row=11, padx=5, pady=5, sticky='w')
 
+    '''
+    returns all values for tcp header
+    '''
     @staticmethod
     def get_tcp_packet(tcp_packet):
         pass
@@ -118,27 +132,42 @@ class Interface:
     def button_tcp(self):
         self.log.debug('Button TCP clicked')
 
-    def get_udp(self, window, udp_packet, ip_header):
+    '''
+    this method collects information about ip and udp header
+    check packet name and if this name already exists packet drops
+    otherwise creates dict like {name: [ip header, udp header]}
+    then window destroys and packet sends
+    '''
+    def get_udp(self, window, udp_header, ip_header):
         self.log.debug('get_udp method called')
-        self.get_udp_dict(udp_packet)
+        self.get_udp_dict(udp_header)
         self.get_ip_dict(ip_header)
 
-        #  TODO fix name check
-        udp_packet.name = udp_packet.name.get()
-        if udp_packet.name in self.packets_list:
-            self.log.debug(f'Packet with name {udp_packet.name} already exists')
+        udp_header.name = udp_header.name.get()
+        if not udp_header.name:
+            self.log.debug(f'udp_header == {udp_header.packet()}\nip_header == {ip_header.packet()}')
+            window.destroy()
+            self.generator.send_udp(ip_header, udp_header)
+
+        if udp_header.name in self.packets_list_names:
+            self.log.debug(f"Packet with name '{udp_header.name}' already exists")
             window.destroy()
             return
 
-        packet = {udp_packet.name: [ip_header, udp_packet]}
+        packet = {udp_header.name: [ip_header, udp_header]}
         self.packets_list.append(packet)
-        self.packets_list_names.append(udp_packet.name)
+        self.packets_list_names.append(udp_header.name)
         self.saved_packets_combobox['values'] = self.packets_list_names
-        self.log.debug(f'udp_header == {udp_packet.packet()}\nip_header == {ip_header.packet()}')
+        #  self.log.debug(f'udp_header == {udp_packet.packet()}\nip_header == {ip_header.packet()}')
+        self.log.debug(f'packet generated:{udp_header.name}: [{ip_header}, {udp_header}]')
         window.destroy()
+        self.generator.send_udp(ip_header, udp_header)
 
+    '''
+    this method creates labels and entry for all udp header parameters
+    '''
     def button_udp(self):
-        udp_packet = packets.UDPPacket()
+        udp_packet = packets.UDPHeader()
         ip_header = packets.IPHeader()
         self.log.debug('Button UDP clicked')
         udp_window = tkinter.Toplevel(self.window)
@@ -149,29 +178,29 @@ class Interface:
         udp_h = tkinter.Label(udp_window, text='UDP header')
         udp_h.grid(column=4, row=0, sticky='w')
 
-        # ===src_port===
+        # ===sport===
         source_port = tkinter.Label(udp_window, text='Source port:')
         source_port.grid(column=3, row=1, sticky='w')
-        entry_source_port = tkinter.Entry(udp_window, textvariable=udp_packet.src_port)
+        entry_source_port = tkinter.Entry(udp_window, textvariable=udp_packet.sport)
         entry_source_port.grid(column=4, row=1, padx=5, pady=5, sticky='w')
 
-        # ===dst_port===
+        # ===dport===
         destination_port = tkinter.Label(udp_window, text='Destination port:')
         destination_port.grid(column=3, row=2, sticky='w')
-        entry_destination_port = tkinter.Entry(udp_window, textvariable=udp_packet.dst_port)
+        entry_destination_port = tkinter.Entry(udp_window, textvariable=udp_packet.dport)
         entry_destination_port.grid(column=4, row=2, padx=5, pady=5, sticky='w')
 
-        # ===length===
-        length = tkinter.Label(udp_window, text='Length:')
-        length.grid(column=3, row=3, sticky='w')
-        entry_length = tkinter.Entry(udp_window, textvariable=udp_packet.length)
-        entry_length.grid(column=4, row=3, padx=5, pady=5, sticky='w')
+        # ===len===
+        len = tkinter.Label(udp_window, text='len:')
+        len.grid(column=3, row=3, sticky='w')
+        entry_len = tkinter.Entry(udp_window, textvariable=udp_packet.len)
+        entry_len.grid(column=4, row=3, padx=5, pady=5, sticky='w')
 
-        # ===checksum===
-        checksum = tkinter.Label(udp_window, text='Checksum:')
-        checksum.grid(column=3, row=4, sticky='w')
-        entry_checksum = tkinter.Entry(udp_window, textvariable=udp_packet.checksum)
-        entry_checksum.grid(column=4, row=4, padx=5, pady=5, sticky='w')
+        # ===chksum===
+        chksum = tkinter.Label(udp_window, text='chksum:')
+        chksum.grid(column=3, row=4, sticky='w')
+        entry_chksum = tkinter.Entry(udp_window, textvariable=udp_packet.chksum)
+        entry_chksum.grid(column=4, row=4, padx=5, pady=5, sticky='w')
 
         # ===name===
         name = tkinter.Label(udp_window, text='Name (for saving packet)')
@@ -185,7 +214,8 @@ class Interface:
         entry_data = tkinter.Entry(udp_window, textvariable=udp_packet.data)
         entry_data.grid(column=4, row=6, padx=5, pady=5, sticky='w')
 
-        send_button = tkinter.Button(udp_window, text='Send', command=lambda: self.get_udp(udp_window, udp_packet, ip_header))
+        send_button = tkinter.Button(udp_window, text='Send',
+                                     command=lambda: self.get_udp(udp_window, udp_packet, ip_header))
         send_button.grid(column=4, row=10, padx=5)
         udp_window.mainloop()
 
