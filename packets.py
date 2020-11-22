@@ -55,32 +55,38 @@ class TCPHeader:
     def __init__(self) -> None:
         self.sport = StringVar()
         self.dport = StringVar()
-        self.len = StringVar()
+        self.seq = StringVar()
+        self.ack = StringVar()
+        self.dataofs = StringVar()
+        self.flags = StringVar()
+        self.window = StringVar()
         self.chksum = StringVar()
-        self.src_ip = StringVar()
-        self.dst_ip = StringVar()
-        self.name = StringVar()
+        self.urgptr = StringVar()
+        self.options = StringVar()
         self.data = StringVar()
-        self.ack_number = StringVar()
-        self.sequence = StringVar()
+        self.name = StringVar()
 
     def packet(self):
-        return {'source port': self.sport,
-                'destination port': self.dport,
-                'source IP': self.src_ip,
-                'destination IP': self.dst_ip,
-                'ack_number': self.ack_number,
-                'len': self.len,
+        return {'sport': self.sport,
+                'dport': self.dport,
+                'seq': self.seq,
+                'ack': self.ack,
+                'dataofs': self.dataofs,
+                'flags': self.flags,
+                'window': self.window,
                 'chksum': self.chksum,
-                'data': self.data}
+                'urgptr': self.urgptr,
+                'options': self.options}
 
-class ICMPPacket:
-    def __init(self) -> None:
+
+class ICMPHeader:
+    def __init__(self) -> None:
         self.type = StringVar()
         self.code = StringVar()
         self.chksum = StringVar()
         self.id = StringVar()
         self.seq = StringVar()
+        self.name = StringVar()
 
     def packet(self):
         return{'type': self.type,
